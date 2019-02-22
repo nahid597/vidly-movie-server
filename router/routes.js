@@ -1,33 +1,42 @@
 
 const express = require('express');
 const Joi = require('joi');
-const debug = require('debug')('app:test')
+const debug = require('debug')('app:test');
+const mongoose = require('mongoose');
 
 const route = express.Router();
 
-const genres = [
-    { id: 1, name: 'Action' },
-    { id: 2, name: 'Horror' },
-    { id: 3, name: 'Drama' },
-]
+const genreSchema = mongoose.Schema({
+    name: {
+        type: String,
+        maxlength: 30,
+        minlength: 3,
+        required: true
+    }
+});
 
-route.get('/', (req, res) => {
+const Genre = mongoose.model('Genre', genreSchema);
+
+route.get('/', async (req, res) => {
+    const genres = await Genre.find();
     res.send(genres);
 
 });
 
-route.get('/:id', (req, res) => {
-    const genre = genres.find(c => c.id === parseInt(req.params.id));
-    if (!genre) {
-        res.send("Requested Id is not exists...");
-        return;
-    
-    }
-    res.send(genre);
+route.get('/:id', async (req, res) => {
+     Genre.findById(req.params.id)
+    .then(result => res.send(result))
+    .catch(error => res.send("Requested Id is not exists...") );
+    // const genre = Genre.find(c => c.id === parseInt(req.params.id));
+    // if (!genre) {
+    //     res.send("Requested Id is not exists...");
+    //     return;
+    // }
+    // res.send(genre);
 
 });
 
-route.post('/', (req, res) => {
+route.post('/', async (req, res) => {
 
     const result = validationInput(req.body);
 
@@ -36,48 +45,35 @@ route.post('/', (req, res) => {
         return;
     }
 
-    const genre = {
-        id: genres.length + 1,
+    let genre = new Genre({
         name: req.body.name,
-    }
+    });
 
-    genres.push(genre);
+    genre = await genre.save();
     //  const genre = req.body;
     res.send(genre);
 
 });
 
-route.put('/:id', (req, res) => {
+route.put('/:id', async (req, res) => {
 
-    const genre = genres.find(c => c.id === parseInt(req.params.id));
-
-    if (!genre) {
-        res.send("Requested Id is not exists...");
+    const result = validationInput(req.body);
+    if (result.error) {
+        res.status(200).send(result.error.details[0].message);
         return;
     }
 
-    genre.name = req.body.name;
-
-    res.send(genre);
-
+    const genre = await Genre.findByIdAndUpdate(req.params.id, { name: req.body.name }, { new: true })
+    .then(result => res.send(result))
+    .catch(error =>  res.send("Requested Id is not exists..."));
 });
 
 
-route.delete('/:id', (req, res) => {
+route.delete('/:id', async (req, res) => {
 
-    const genre = genres.find(c => c.id === parseInt(req.params.id));
-
-    if (!genre) {
-        res.send("Requested Id is not exists...");
-        return;
-    }
-    const index = req.params.id;
-
-    const deleteGenre = genres.indexOf(index);
-
-    genres.splice(deleteGenre, 1);
-
-    res.send(genre);
+    await Genre.findByIdAndRemove(req.params.id)
+    .then(result => res.send(result))
+    .catch(error =>  res.send("Requested Id is not exists..."));
 
 });
 
