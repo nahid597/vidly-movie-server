@@ -7,21 +7,7 @@ const Joi = require('joi');
 
 const route = express.Router();
 
-const customerSchema = mongoose.Schema({
-    name: {
-        type: String,
-        required: true,
-        maxlength: 30
-    },
-    phone: {
-        type: String,
-        required: true
-    },
-    isGold: Boolean,
-
-});
-
-const Customer = mongoose.model('Customer' , customerSchema);
+const {Customer} = require('../model/customer');
 
 route.get('/', async (req, res) => {
    const customer = await Customer.find();

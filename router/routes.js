@@ -6,16 +6,7 @@ const mongoose = require('mongoose');
 
 const route = express.Router();
 
-const genreSchema = mongoose.Schema({
-    name: {
-        type: String,
-        maxlength: 30,
-        minlength: 3,
-        required: true
-    }
-});
-
-const Genre = mongoose.model('Genre', genreSchema);
+const {Genre} = require('../model/genre');
 
 route.get('/', async (req, res) => {
     const genres = await Genre.find();
@@ -27,13 +18,6 @@ route.get('/:id', async (req, res) => {
      Genre.findById(req.params.id)
     .then(result => res.send(result))
     .catch(error => res.send("Requested Id is not exists...") );
-    // const genre = Genre.find(c => c.id === parseInt(req.params.id));
-    // if (!genre) {
-    //     res.send("Requested Id is not exists...");
-    //     return;
-    // }
-    // res.send(genre);
-
 });
 
 route.post('/', async (req, res) => {
