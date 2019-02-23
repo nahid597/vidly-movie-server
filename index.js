@@ -13,10 +13,12 @@ mongoose.connect('mongodb://localhost/Vidly' , {useNewUrlParser: true})
 
 const router = require('./router/routes');
 const customers = require('./router/customers');
+const movies = require('./router/movies');
 
 
 app.use('/api/genres', router);
 app.use('/api/customers' , customers);
+app.use('/api/movies' , movies);
 
 
 const port = process.env.PORT || 3000;
