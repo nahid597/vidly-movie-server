@@ -3,8 +3,16 @@ const bcrypt = require('bcryptjs');
 const _ = require('lodash');
 const express = require('express');
 const {User, validatedUser} = require('../model/user');
+const jwt = require('jsonwebtoken');
+const config = require('config');
+const auth = require('../middleware/auth');
 
 const route = express.Router();
+
+route.get('/me' , auth , async (req, res) => {
+    const user = await User.findById(req.user._id).select('-password');
+    res.send(user);
+})
 
 route.post('/' , async (req, res) => {
   
@@ -38,8 +46,10 @@ route.post('/' , async (req, res) => {
 
      await user.save();
 
+    // const token =  jwt.sign({_id:user._id} , config.get('jwtPrivateKey') );
      
-     res.send(_.pick(user, [ '_id' , 'name' , 'email']));
+    const token = user.generateAuthToken();
+     res.header('x-auth-token' , token).send(_.pick(user, [ '_id' , 'name' , 'email']));
 
     // res.status(200).send(user);
 

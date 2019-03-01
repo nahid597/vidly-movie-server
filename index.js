@@ -2,6 +2,7 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const debug = require('debug')('app:test');
+const config = require('config');
 
 const app = express();
 
@@ -18,6 +19,11 @@ const rental = require('./router/rental');
 const user = require('./router/user');
 const auth = require('./router/auth');
 
+
+if(!config.get('jwtPrivateKey')){
+    debug('FATAL error. jwrPrivateKey is not set..');
+    process.exit(1);
+}
 
 app.use('/api/genres', router);
 app.use('/api/customers' , customers);
