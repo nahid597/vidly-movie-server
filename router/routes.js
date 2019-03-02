@@ -11,12 +11,14 @@ const route = express.Router();
 const {Genre} = require('../model/genre');
 
 route.get('/', async (req, res) => {
-    const genres = await Genre.find();
-    res.send(genres);
-
+   // throw new Error('could not find the genre');
+        const genres = await Genre.find();
+        res.status(200).send(genres);
+        
 });
 
 route.get('/:id', async (req, res) => {
+   // throw new Error('could not find the genre');
      Genre.findById(req.params.id)
     .then(result => res.send(result))
     .catch(error => res.send("Requested Id is not exists...") );
